@@ -3,16 +3,16 @@
   <title type="text">{{ title }}</title>
   <id>{{ base_url }}{{ collection }}</id>
   <updated>{{ updated }}Z</updated>
-  <link rel="self" title="{{ collection }}" href="https://{{ base_url }}/{{ collection }}" />
+  <link rel="self" title="{{ collection }}" href="{{ base_url }}{{ collection }}" />
   {% for entry in entries %}
   <entry>
-    <id>{{ base_url }}/{{ collection }}({{ entry._id }})</id>
-    <title type="text">ckan</title>
+    <id>{{ base_url }}{{ collection }}({{ entry._id }})</id>
+    <title type="text">Row {{ entry._id }}</title>
     <updated>{{ updated }}Z</updated>
     <author>
       <name>ckan</name>
     </author>
-    <category term="ckan.odata" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+    <category term="ckan.odata.{{ collection }}" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
     <content type="application/xml">
       <m:properties>
         {% for key, value in entry.iteritems() %}
@@ -29,6 +29,6 @@
   </entry>
   {% endfor %}
   {% if next_query_string %}
-  <link rel="next" href="{{ base_url }}/{{ collection }}?{{ next_query_string }}" />
+  <link rel="next" href="{{ base_url }}{{ collection }}?{{ next_query_string }}" />
   {% endif %}
 </feed>

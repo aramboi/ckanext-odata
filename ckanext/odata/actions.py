@@ -104,7 +104,7 @@ def odata(context, data_dict):
         
         data_dict = {
             'sql': sql
-        }      
+        }
     else:
         action = t.get_action('datastore_search')
         
@@ -165,3 +165,42 @@ def odata(context, data_dict):
         }
         t.response.headers['Content-Type'] = 'application/atom+xml;type=feed;charset=utf-8'
         return t.render('ckanext-odata/collection.xml', data)
+
+
+def odata_metadata(context, data_dict):
+    uri = data_dict.get('uri')
+
+    match = re.search(r'^(.*)\((\d+)\)$', uri)
+    if match:
+        resource_id = match.group(1)
+    else:
+        resource_id = uri
+
+    action = t.get_action('datastore_search')
+    data_dict = {
+        'resource_id': resource_id,
+        'limit': '0',
+    }
+
+    try:
+        result = action({}, data_dict)
+    except t.ObjectNotFound:
+        t.abort(404, t._('DataStore resource not found'))
+    except t.NotAuthorized:
+        t.abort(401, t._('DataStore resource not authourized'))
+
+    convert = []
+    for field in result['fields']:
+        convert.append({
+            'name': name_2_xml_tag(field['id']),
+            # if we have no translation for a type use Edm.String
+            'type': TYPE_TRANSLATIONS.get(field['type'], 'Edm.String'),
+        })
+
+    data = {
+        'base_url': base_url(),
+        'collection': resource_id,
+        'convert': convert,
+    }
+    t.response.headers['Content-Type'] = 'application/xml;charset=utf-8'
+    return t.render('ckanext-odata/collection_metadata.xml', data)
