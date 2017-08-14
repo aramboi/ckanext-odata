@@ -48,8 +48,8 @@ def name_2_xml_tag(name):
                   ur'\u203F-\u2040]', '', name)
 
     # add '_' in front of non-NameStart characters
-    name = re.sub(ur'(?P<q>^[-.0-9\u00B7#\u0300-\u036F\u203F-\u2040])',
-                  '_\g<q>', name, flags=re.M)
+    name = re.sub(re.compile(ur'(?P<q>^[-.0-9\u00B7#\u0300-\u036F\u203F-\u2040])', re.MULTILINE),
+                  '_\g<q>', name)
 
     # No valid XML element at all
     if name == '':
