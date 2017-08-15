@@ -42,9 +42,9 @@ def name_2_xml_tag(name):
     '''
 
     # leave well-formed XML element characters only
-    name = re.sub(ur'[^:A-Z_a-z\u00C0-\u00D6\u0370-\u037D\u037F-\u1FFF'
+    name = re.sub(ur'[^A-Z_a-z\u00C0-\u00D6\u0370-\u037D\u037F-\u1FFF'
                   ur'\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF'
-                  ur'\uF900-\uFDCF\uFDF0-\uFFFD-.0-9\u00B7\u0300-\u036F'
+                  ur'\uF900-\uFDCF\uFDF0-\uFFFD-0-9\u00B7\u0300-\u036F'
                   ur'\u203F-\u2040]', '', name)
 
     # add '_' in front of non-NameStart characters
@@ -147,19 +147,20 @@ def odata(context, data_dict):
         response = json.dumps(out)
         return response
     else:
-        convert = {}
+        convert = []
         for field in result['fields']:
-            convert[field['id']] = {
+            convert.append({
+                'id': field['id'],
                 'name': name_2_xml_tag(field['id']),
                 # if we have no translation for a type use Edm.String
                 'type': TYPE_TRANSLATIONS.get(field['type'], 'Edm.String'),
-            }
+            })
         data = {
             'title': resource['name'],
             'updated': resource['last_modified'] or resource['created'],
             'base_url': base_url(),
-            'convert': convert,
             'collection': uri,
+            'convert': convert,
             'entries': result['records'],
             'next_query_string': next_query_string,
         }

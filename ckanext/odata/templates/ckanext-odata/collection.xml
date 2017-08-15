@@ -15,13 +15,14 @@
     <category term="ckan.odata.{{ collection }}" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
     <content type="application/xml">
       <m:properties>
-        {% for key, value in entry.iteritems() %}
-        {%- set tag = convert[key]['name'] %}
-        {%- set type = convert[key]['type'] %}
-        {%- if value is none %}
+        {% for field in convert %}
+        {%- set id = field['id'] %}
+        {%- set tag = field['name'] %}
+        {%- set type = field['type'] %}
+        {%- if entry[id] is none %}
         <d:{{ tag }} m:type="{{ type }}" m:null="true" />
         {% else %}
-        <d:{{ tag }} m:type="{{ type }}">{{ value }}</d:{{ tag }}>
+        <d:{{ tag }} m:type="{{ type }}">{{ entry[id] }}</d:{{ tag }}>
         {% endif %}
         {%- endfor %}
       </m:properties>
