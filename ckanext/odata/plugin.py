@@ -19,7 +19,7 @@ class ODataPlugin(p.SingletonPlugin):
         p.toolkit.add_resource('resources', 'odata')
 
     def before_map(self, m):
-        m.connect('/datastore/odata3.0/{uri:.*?}/$metadata',
+        m.connect('/datastore/odata3.0/$metadata',
                   controller='ckanext.odata.controller:ODataController',
                   action='odata_metadata')
         m.connect('/datastore/odata3.0/{uri:.*?}',

@@ -169,39 +169,49 @@ def odata(context, data_dict):
 
 
 def odata_metadata(context, data_dict):
-    uri = data_dict.get('uri')
-
-    match = re.search(r'^(.*)\((\d+)\)$', uri)
-    if match:
-        resource_id = match.group(1)
-    else:
-        resource_id = uri
-
-    action = t.get_action('datastore_search')
-    data_dict = {
-        'resource_id': resource_id,
-        'limit': '0',
+    table_metadata_dict = {
+        'resource_id': '_table_metadata',
+        'limit': '10000',
     }
 
     try:
-        result = action({}, data_dict)
+        result = t.get_action('datastore_search')({}, table_metadata_dict)
     except t.ObjectNotFound:
-        t.abort(404, t._('DataStore resource not found'))
+        t.abort(404, t._('Table Metadata not found'))
     except t.NotAuthorized:
-        t.abort(401, t._('DataStore resource not authourized'))
+        t.abort(401, t._('Table Metadata not authourized'))
 
-    convert = []
-    for field in result['fields']:
-        convert.append({
-            'name': name_2_xml_tag(field['id']),
-            # if we have no translation for a type use Edm.String
-            'type': TYPE_TRANSLATIONS.get(field['type'], 'Edm.String'),
-        })
+    datastore_list = []
+    for record in result.get('records'):
+        if record.get('name') != '_table_metadata' and len(record.get('name')) == 36:
+           datastore_list.append(record.get('name'))
 
-    data = {
-        'base_url': base_url(),
-        'collection': resource_id,
-        'convert': convert,
-    }
+    collections = []
+    for resource_id in datastore_list:
+        data_dict = {
+            'resource_id': resource_id,
+            'limit': '0',
+        }
+
+        try:
+            result_2 = t.get_action('datastore_search')({}, data_dict)
+        except:
+            continue
+
+        fields = []
+        for field in result_2['fields']:
+            fields.append({
+                'name': name_2_xml_tag(field['id']),
+                # if we have no translation for a type use Edm.String
+                'type': TYPE_TRANSLATIONS.get(field['type'], 'Edm.String'),
+            })
+        collection = {
+            'name': resource_id,
+            'fields': fields
+        }
+        collections.append(collection)
+
+    data = { 'collections' : collections }
+
     t.response.headers['Content-Type'] = 'application/xml;charset=utf-8'
-    return t.render('ckanext-odata/collection_metadata.xml', data)
+    return t.render('ckanext-odata/metadata.xml', data)

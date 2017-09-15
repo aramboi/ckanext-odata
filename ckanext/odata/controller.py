@@ -9,8 +9,7 @@ class ODataController(p.toolkit.BaseController):
         result = action({}, data_dict)
         return result
 
-    def odata_metadata(self, uri):
-        data_dict = {'uri': uri}
+    def odata_metadata(self):
         action = p.toolkit.get_action('ckanext-odata_metadata')
-        result = action({}, data_dict)
+        result = action({},{})
         return result

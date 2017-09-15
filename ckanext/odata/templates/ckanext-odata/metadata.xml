@@ -1,11 +1,12 @@
 <edmx:Edmx xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" Version="1.0">
   <edmx:DataServices xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" m:DataServiceVersion="3.0">
     <Schema xmlns="http://schemas.microsoft.com/ado/2006/04/edm" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" Namespace="ckan.odata">
-      <EntityType Name="{{ collection }}">
+      {% for collection in collections %}
+      <EntityType Name="{{ collection.name }}">
         <Key>
           <PropertyRef Name="_id"/>
         </Key>
-        {% for property in convert %}
+        {% for property in collection.fields %}
         {% if property['name'] == '_id' %}
         <Property Name="{{ property['name'] }}" Type="{{ property['type'] }}" Nullable="false"/>
         {% else %}
@@ -14,8 +15,9 @@
         {%- endfor %}
       </EntityType>
       <EntityContainer Name="Service" m:IsDefaultEntityContainer="true">
-        <EntitySet Name="{{ collection }}" EntityType="ckan.odata.{{ collection }}"/>
+        <EntitySet Name="{{ collection.name }}" EntityType="ckan.odata.{{ collection.name }}"/>
       </EntityContainer>
+      {%- endfor %}
     </Schema>
   </edmx:DataServices>
 </edmx:Edmx>
