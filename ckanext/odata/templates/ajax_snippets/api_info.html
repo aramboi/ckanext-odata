@@ -138,11 +138,13 @@ Example
       <div id="collapse-python" class="accordion-body collapse">
         <div class="accordion-inner">
           <pre>
-import urllib
+import json
+import urllib.request
 url = '{{ h.url_for(qualified=True, controller='api', action='action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5) + '&q=title:jones' }}'  {# not urlencoding the ":" because its clearer #}
-fileobj = urllib.urlopen(url)
-print fileobj.read()
-</pre>
+fileobj = urllib.request.urlopen(url)
+response_dict = json.loads(fileobj.read())
+print(response_dict)
+          </pre>
         </div>
       </div>
     </div>
