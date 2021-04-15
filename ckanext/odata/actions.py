@@ -42,13 +42,13 @@ def name_2_xml_tag(name):
     '''
 
     # leave well-formed XML element characters only
-    name = re.sub(ur'[^A-Z_a-z\u00C0-\u00D6\u0370-\u037D\u037F-\u1FFF'
-                  ur'\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF'
-                  ur'\uF900-\uFDCF\uFDF0-\uFFFD-0-9\u00B7\u0300-\u036F'
-                  ur'\u203F-\u2040]', '', name)
+    name = re.sub(r'[^A-Z_a-z\u00C0-\u00D6\u0370-\u037D\u037F-\u1FFF'
+                  r'\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF'
+                  r'\uF900-\uFDCF\uFDF0-\uFFFD-0-9\u00B7\u0300-\u036F'
+                  r'\u203F-\u2040]', '', name)
 
     # add '_' in front of non-NameStart characters
-    name = re.sub(re.compile(ur'(?P<q>^[-.0-9\u00B7#\u0300-\u036F\u203F-\u2040])', re.MULTILINE),
+    name = re.sub(re.compile(r'(?P<q>^[-.0-9\u00B7#\u0300-\u036F\u203F-\u2040])', re.MULTILINE),
                   '_\g<q>', name)
 
     # No valid XML element at all
@@ -79,7 +79,7 @@ def base_url():
 def odata(context, data_dict):
 
     uri = data_dict.get('uri')
-    
+
     match = re.search(r'^(.*)\((\d+)\)$', uri)
     if match:
         resource_id = match.group(1)
@@ -89,9 +89,9 @@ def odata(context, data_dict):
         row_id = None
         resource_id = uri
         filters = {}
-    
+
     output_json = t.request.GET.get('$format') == 'json'
-    
+
     # Ignore $limit & $top paramters if $sqlfilter is specified
     # as they should be specified by the sql query
     if t.request.GET.get('$sqlfilter'):
@@ -99,13 +99,13 @@ def odata(context, data_dict):
 
         query = t.request.GET.get('$sqlfilter')
         sql = "SELECT * FROM \"%s\" %s"%(resource_id, query)
-        
+
         data_dict = {
             'sql': sql
         }
     else:
         action = t.get_action('datastore_search')
-        
+
         limit = get_qs_int('$top', 500)
         offset = get_qs_int('$skip', 0)
 
@@ -115,7 +115,7 @@ def odata(context, data_dict):
             'limit': limit,
             'offset': offset
         }
-        
+
     try:
         result = action({}, data_dict)
     except t.ObjectNotFound:
@@ -124,7 +124,7 @@ def odata(context, data_dict):
         t.abort(401, t._('DataStore resource not authourized'))
     except t.ValidationError as e:
         return json.dumps(e.error_dict)
-    
+
     if not t.request.GET.get('$sqlfilter'):
         num_results = result['total']
         if num_results > offset + limit:
